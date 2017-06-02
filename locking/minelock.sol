@@ -13,11 +13,13 @@ contract minelock {
     
 // global vars
     uint public releaseTime = 1496423100;   //stores the unix encoded timestamp of release 
+    unit public termOfTrade = 100 ether;    // final contract goal
+    bool public metToT;                            // did contract close
     uint public listPrice;                  //allow for dynamic pricing
     address public owner = msg.sender;      // person who is currently able to withdraw
     address public sponsor = msg.sender;    // person who is putting reputation on the line
     string public pool;                     // pool url the contract can be viewed at 
-    string version = "v0.0.1";              //version
+    string public version = "v0.1.0";              //version
 //mapping    
 
 //events
@@ -49,7 +51,9 @@ contract minelock {
     //only Owner
     function withdraw() onlyOwner{                                  // owner can withdraw after maturity
         require (block.timestamp > releaseTime);
+        if(!this.balance >= termOfTrade){metTot = false;}
         msg.sender.transfer(this.balance);
+        
         }
     
         //allows for dynamic pricing
@@ -65,27 +69,3 @@ contract minelock {
         Pooled(pool);                   
     }
             
-    
-
-// safety features - remove for production -
-    
-    //allow for reloading during testing
-    function reset(uint _releaseTime) {
-        require (block.timestamp > releaseTime);
-        releaseTime = _releaseTime;
-    }
-    
-// abi and contract ipfs
-    bool isLocked;
-    string public ipfsAbi;
-    string public ipfsContract;
-    string public ipfsByte;
-    
-    function regipfs(string _ipfsAbi, string _ipfsContract, string _ipfsByte) {
-        if(isLocked){throw;}
-        isLocked=true;
-        ipfsAbi = _ipfsAbi;
-        ipfsContract = _ipfsContract;
-        ipfsByte = _ipfsByte;
-    }
-}

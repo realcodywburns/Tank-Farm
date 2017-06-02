@@ -1,3 +1,14 @@
+// Mining futures contract
+// Timelocked transferable mining contract, to be filled over time and payout to current owner
+// @authors:
+// Cody Burns <dontpanic@codywburns.com>
+// license: Apache 2.0
+
+// usage:
+// A miner deploys the contract and updates the pool information(a url to the pool account) and a list price
+// A buyer pays the list price and becomes owner
+// the owner can relist or wait until maturity and withdraw
+
 contract minelock {
     
 // global vars

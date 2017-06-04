@@ -1,4 +1,4 @@
-// Mining futures contract
+// Mining forward contract
 // Timelocked transferable mining contract, to be filled over time and payout to current owner
 // @authors:
 // Cody Burns <dontpanic@codywburns.com>

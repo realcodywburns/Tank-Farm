@@ -1,0 +1,30 @@
+{
+  "contract_name": "ContractReceiver",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        },
+        {
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "name": "tokenFallback",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000c57fe5b5b60b48061001b6000396000f300606060405263ffffffff60e060020a600035041663c0ee0b8a81146020575bfe5b3415602757fe5b604080516020600460443581810135601f81018490048402850184019095528484526080948235600160a060020a0316946024803595606494929391909201918190840183828082843750949650608295505050505050565b005b5b5050505600a165627a7a72305820485add22240f2b6ce58f026a4f0fd5322622c804fc0e43b47a168b32fa4f2a3f0029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1497114019760
+}

@@ -1,3 +1,5 @@
+pragma solidity ^0.4.11;
+
 contract owned{
   function owned () {owner = msg.sender;}
   address owner;
@@ -14,21 +16,21 @@ contract contest is owned{
   string public title;          // name of the event
   address public official;      // who gets the final say
   uint public endDate;          // timestamp when auction ends
-  
-  uint public voteCost;         // the cost to vote, goes to 
+
+  uint public voteCost;         // the cost to vote, goes to
   uint public submitCost;       // cost to make a submission
-  
+
   uint submissionCount;         //  count the submissions
   address public winner;        //  declare the winners number
-  
+
   address public charity;       // an address a portion of the winnings can go to
   uint public cPercent;         // how much of total to give to charity(whole number of percentage 20 = 20%)
-  
- // open submissions+ address of submitter +link to the image+ count of votes 
+
+ // open submissions+ address of submitter +link to the image+ count of votes
  struct submit {
    address payTo;string img; uint voteCount;
  }
- 
+
 //mapping
 mapping (address => uint) balances;
 mapping(uint => submit) contestList;
@@ -40,14 +42,14 @@ event submitUpdate(string comment); // alert when a new submission arrives
 
 //init state set who is the official, what the event is, and when it is over
   function setup(string _title, address _official, uint _hours, uint _voteCost, uint _submitCost, address _charity, uint _cPercent) onlyOwner{
-        title = _title;    
+        title = _title;
         official = _official;
         endDate = now + (_hours *3600) ;
         charity = _charity;
         cPercent = _cPercent;
         submitCost = _submitCost;
         voteCost = _voteCost;
-        
+
     //zeroize the contrcat
         submissionCount = 0;
        }
@@ -59,13 +61,13 @@ event submitUpdate(string comment); // alert when a new submission arrives
         uint a = 0;
 	uint b = 0;
 	for (uint i = 0; i < submissionCount; ++i){
-	b = a; //store old value 
+	b = a; //store old value
 	a = max(a, contestList[i].voteCount);
 	 if(a != b){winner = contestList[i].payTo;}
 	}
         submitUpdate("The winner has been selected! Awaiting final approvial.");
     }
-    
+
   }
 
   function finalWinner() public {
@@ -83,16 +85,16 @@ event submitUpdate(string comment); // alert when a new submission arrives
   }
 
 
-//Allow voting 
+//Allow voting
   function vote(uint _voteFor) payable{
     if(msg.value < voteCost){throw;}             //reject votes less than the the vote cost
     contestList[_voteFor].voteCount += 1;       //nolist of donors is kept, dont screw this up official
-    
+
   }
 
 //new submission
   function submission(string _img) payable{
-    if(msg.value < submitCost){throw;}             //reject submission less than the the submit cost    
+    if(msg.value < submitCost){throw;}             //reject submission less than the the submit cost
     uint id = submissionCount;
     submit s = contestList[id];
     s.payTo = msg.sender;
@@ -100,7 +102,7 @@ event submitUpdate(string comment); // alert when a new submission arrives
     s.voteCount = 0;
     submissionCount ++;
   }
-  
+
 
 //outputs
 
@@ -116,13 +118,13 @@ function submitimg(uint _id) constant returns(string){
 
 
   function() { throw; }
-  
+
   function max(uint a, uint b) private returns (uint) {
         return a > b ? a : b;
-    }  
-  
+    }
+
  function kill() onlyOwner{
       selfdestruct(owner);
-      //kills contract 
+      //kills contract
   }
  }

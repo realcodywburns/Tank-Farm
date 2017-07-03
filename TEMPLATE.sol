@@ -1,5 +1,5 @@
-// Timelock
-// lock withdrawal for a set time period
+// [short Title]
+//
 // @authors:
 // Cody Burns <dontpanic@codywburns.com>
 // license: Apache 2.0
@@ -7,32 +7,37 @@
 
 pragma solidity ^0.4.11;
 
-// Intended use: lock withdrawal for a set time period
+// Intended use:
 //
-// Status: functional
+// Status: {wip, functional, production deployed}
 // still needs:
-// submit pr and issues to https://github.com/realcodywburns/
+// submit pr and issues to https://github.com/realcodywburns/ETC-public-Works/edit/master/public-registry/manager.sol
 
 
-contract timelock {
+contract template {
 
 ////////////////
 //Global VARS//////////////////////////////////////////////////////////////////////////
 //////////////
-    uint public releaseTime = 1496423100;       //stores the unix encoded timestamp of release
+
+/* administrative information */
+
+/* Booleans */
+/* Integers */
+/* Address */
+/* Arrays */
+/* Strings */
+/* STRUCTS/ENUMS */
+
 
 ///////////
 //MAPPING/////////////////////////////////////////////////////////////////////////////
 ///////////
 
-    mapping (address => uint) public lockers;
 
 ///////////
 //EVENTS////////////////////////////////////////////////////////////////////////////
 //////////
-
-    event Locked(address indexed locker, uint indexed amount);
-    event Released(address indexed locker, uint indexed amount);
 
 /////////////
 //MODIFIERS////////////////////////////////////////////////////////////////////
@@ -43,45 +48,28 @@ contract timelock {
 //////////////
 
 /* public functions */
-    function() payable {
-        lockers[msg.sender] += msg.value;
-        Locked(msg.sender, msg.value);
-    }
 
-    function withdraw() {
-        require (block.timestamp > releaseTime && lockers[msg.sender] > 0);
-        uint value = lockers[msg.sender];
-        lockers[msg.sender] = 0;
-        msg.sender.transfer(value);
-        Released(msg.sender, value);
-    }
+/* admin/group functions */
 
-    function reset(uint _releaseTime) {
-        require (block.timestamp > releaseTime);
-        releaseTime = _releaseTime;
-    }
+/* only owner */
+
 ////////////
 //OUTPUTS///////////////////////////////////////////////////////////////////////
 //////////
 
+/* public */
+
+/* admin/group functions */
+
+/* only owner */
+
 ////////////
 //SAFETY ////////////////////////////////////////////////////////////////////
 //////////
+//safety switches consider removing for production
+//clean up after contract is no longer needed
 
-// abi and contract ipfs
-    bool isLocked;
-    string public ipfsAbi;
-    string public ipfsContract;
-    string public ipfsByte;
 
-    function regipfs(string _ipfsAbi, string _ipfsContract, string _ipfsByte) {
-        if(isLocked){throw;}
-        isLocked=true;
-        ipfsAbi = _ipfsAbi;
-        ipfsContract = _ipfsContract;
-        ipfsByte = _ipfsByte;
-    }
-}
 
 /////////////////////////////////////////////////////////////////////////////
 // 88888b   d888b  88b  88 8 888888         _.-----._

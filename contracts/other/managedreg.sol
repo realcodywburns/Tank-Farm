@@ -6,12 +6,12 @@ pragma solidity ^0.4.11;
 // @authors:
 // Cody Burns <dontpanic@codywburns.com>
 // license: Apache 2.0
-// reg version: 0.0.2
 
 // usage:
-// NOT PRODUCTION READY! DO NOT USE THIS FOR REAL WORLD YET! (or do it, works .....okay)
+//
 // This managing contract is a general purpose token. Users can register the token address, symbol. decimal, type, and icon location(url for a set fee)
 // It needs an owner who can assign Managers. Managers can edit token details. Output is all meta token data by item.
+// Status: functional
 // still needs: improved item editing management, test framework, access levels for admins, all outputs for meta data, externalize admin to onlyAdmin contract
 // submit pr and issues to https://github.com/realcodywburns/ETC-public-Works/edit/master/public-registry/manager.sol
 
@@ -25,8 +25,6 @@ contract owned{
           _;
           }
   }
-
-
 contract priced {
     modifier costs(uint price) {
         if (msg.value >= price) {
@@ -34,22 +32,21 @@ contract priced {
         }
     }
 }
-
-
-
 contract smartmanager is priced, owned {
+////////////////
+//Global VARS//////////////////////////////////////////////////////////////////////////
+//////////////
 
-//Global vars
-
+/* administrative */
+  enum modActions { add, del, change, reprice, rename } // 0,1,2,3,4
+  modActions choice;
   string public nameTag;                // public contract name
-  uint aCount;                          // running account check
+  uint64 aCount;                         // running account check
   uint public pendingReturns;           //  returns amount available for withdrawl
-  uint public adminCount;               // check count of admins
+  uint8 public adminCount;               // check count of admins
   uint public price;                    // the cost of each ticket is n ether.
-
   struct admin {
     address adminAddr;                  // store an admins address
-    string aName;                       // assign a human readable name to an admin
    }
 
    struct token{
@@ -60,29 +57,43 @@ contract smartmanager is priced, owned {
       uint tDecimal;  // how many decimal places
       string tType;   // the type of token
       string tIcon;   // url of image file for token if any
-// admin items
-      string memo;            // notes on the token
+      string tURL;    // team website
+      string tBlerb;   // about token
       uint dateChanged;     // last changed on
       address changedBy;    // last changed by
       string changeReason;  // notes on change
     }
 
-//mapping
+
+
+///////////
+//MAPPING/////////////////////////////////////////////////////////////////////////////
+///////////
+
   mapping(uint => token) tokens;
   mapping(uint => admin) adminList;
 
-//events
+///////////
+//EVENTS////////////////////////////////////////////////////////////////////////////
+//////////
+
   event newToken(address tAddr, address tSale, string tName, string tSymbol);
   event modToken(address modName, address tAddr, address tSale, string tName, string tSymbol);
   event delToken(address modName, string tokenName);
 
-// functions
+//////////////
+//Operations////////////////////////////////////////////////////////////////////////
+//////////////
 
-// public functions
+/* public functions */
 
 // anyone can add a token to the registry if the price is paid
 
-function register(address _tAddr, address _tSale, string _tName, string _tSymbol, uint _tDecimal, string _tType, string _tIcon) public payable costs(price){
+function register(address _tAddr, address _tSale, string _tName, string _tSymbol, uint _tDecimal, string _tType, string _tIcon, string _tUrl, string _tBlerb) public payable costs(price){
+    logCoin(_tAddr,_tSale,_tName,  _tSymbol, _tDecimal,  _tType, _tIcon, _tUrl, _tBlerb);
+}
+
+function  logCoin(address _tAddr, address _tSale, string _tName, string _tSymbol, uint _tDecimal, string _tType, string _tIcon, string _tUrl, string _tBlerb) internal {
     uint id = aCount++;
     token t = tokens[id];                                   // assigns the incoming token to the next available address
     t.tAddr = _tAddr;                                       // address of the main token contract
@@ -92,17 +103,16 @@ function register(address _tAddr, address _tSale, string _tName, string _tSymbol
     t.tDecimal = _tDecimal;                                 // how many places
     t.tType =  _tType;                                      // erc20 or erc223
     t.tIcon = _tIcon;                                       // should be a url to the token image
+    t.tURL = _tUrl;
+    t.tBlerb = _tBlerb;
     t.dateChanged = now;                                    // updates the modlog
     pendingReturns += msg.value;                            // increases the owners balance
-
     newToken(_tAddr, _tSale, _tName,  _tSymbol);            // announce token logged with an event
 }
 
-
-// only owner
+/* only owner */
 
 //only owner can get the funds stored on the contract
-
 function withdraw() onlyOwner returns (bool) {
     var amount = pendingReturns;
     if (amount > 0) {
@@ -116,31 +126,28 @@ function withdraw() onlyOwner returns (bool) {
   }
 
 // only the owner can add and remove the admins
-
-function modAdmin(address _admin, uint _action, uint _index) onlyOwner{
-//options are 1 add, 2 del, 3 mod
-    if (_action == 1){
+function modAdmin(address _admin, modActions _action, uint8 _index) onlyOwner{
+//options are  add,  del, change
+    if (_action == modActions.add){
       uint id = adminCount++;
       adminList[id].adminAddr = _admin;
     }
-    if (_action == 2){
+    if (_action == modActions.del){
       delete adminList[_index].adminAddr;
       adminCount = adminCount -1;
     }
-    if (_action == 3){
+    if (_action == modActions.change){
       adminList[_index].adminAddr = _admin;
     }
   }
 
 
+/* admin managed functions */
 
-// admin managed functions
-  //manage the list in case something goes wrong (1)add (2)delete (3)change (4) ticketPrice (5) change the nametag
-
+//manage the list in case something goes wrong (1)add (2)delete (3)change (4) ticketPrice (5) change the nametag
 function modCategory(
-      uint _action,
+      modActions _action,
       uint _index,
-
       address _tAddr,
       address _tSale,
       string _tName,
@@ -148,100 +155,57 @@ function modCategory(
       uint _tDecimal,
       string _tType,
       string _tIcon,
-      string _memo,
-
-
-      uint _fType,            // which type of field 1) uint 2) string 3) address
-      uint _field,            // which field to update
-      uint _nUpdater,
-      string _sUpdater,
-      address _aUpdater,
-
-      string _reason,
+      string _tUrl,
+      string _tBlerb,
       uint _reprice,
       string _newName
       ) onlyAdmin {
-
 //this is the function adds contracts from the list for free
-     if (_action == 1){
-     token t = tokens[_index];                                // assigns the incoming token to an index address DO NOT PUSH TO A FILLED INDEX IT WILL OVERWRITE IT!
-     t.tAddr = _tAddr;                                        // address of the main token contract
-     t.tSale = _tSale;                                        // address of the crowd sale
-     t.tName = _tName;                                        // human readable name of token
-     t.tSymbol = _tSymbol;                                    // tickertape symbol
-     t.tDecimal = _tDecimal;                                  // how many places
-     t.tType =  _tType;                                       // erc20 or erc223
-     t.tIcon = _tIcon;                                        // should be a url to the token image
-     t.dateChanged = now;                                     // updates the modlog
-     t.changedBy = msg.sender;                                // which person updated the records
-     t.memo = _memo;                                          // add a memo of why this token was added for free
-
-    modToken(t.changedBy, _tAddr, _tSale, _tName,  _tSymbol);  // announce token logged with an event
+     if (_action == modActions.add){
+     logCoin(_tAddr,_tSale, _tName,  _tSymbol, _tDecimal,  _tType, _tIcon,_tUrl, _tBlerb);
        }
 
+
 //this is the function removes contracts from the list and saves the meta data of who pulled it
-     if (_action == 2){
-       t = tokens[_index];
-       delToken(msg.sender, t.tName);                   // announce that the token is being killed
-       delete t.tAddr;                                  // zeroize all fields
-       delete t.tSale;
-       delete t.tName;
-       delete t.tSymbol;
-       delete t.tDecimal;
-       delete t.tType;
-       delete t.tIcon;
-       delete t.dateChanged;
-       t.dateChanged = now;                             // update the date that the change happened
-       t.changedBy = msg.sender;                        // name the person who changed it
+     if (_action == modActions.del){
+     delete tokens[_index];
+     // delToken(msg.sender, t.tName);                   // announce that the token is being killed
+     // delete t.tAddr;                                  // zeroize all fields
+     // delete t.tSale;
+     // delete t.tName;
+     // delete t.tSymbol;
+     // delete t.tDecimal;
+     // delete t.tType;
+     // delete t.tIcon;
+     // delete t.dateChanged;
+     // t.dateChanged = now;                             // update the date that the change happened
+     //t.changedBy = msg.sender;                        // name the person who changed it
        }
 
 //this is the function allows to change a specific field in a contract from the list, TODO add all fields
-     if (_action == 3){
-      t = tokens[_index];
-    //change number types
-      if (_fType == 1) {
-        t.tDecimal = _nUpdater;
-      }
-    //change string types
-      if (_fType == 2) {
-        if (_field == 1){t.tName = _sUpdater;}
-        if (_field == 2){t.tSymbol = _sUpdater;}
-        if (_field == 3){t.tType = _sUpdater;}
-        if (_field == 4){t.tIcon = _sUpdater;}
-        if (_field == 5){t.memo = _sUpdater;}
-      }
-    //change address types
-      if (_fType == 3) {
-        if (_field == 1){t.tAddr = _aUpdater;}
-        if (_field == 2){t.tSale = _aUpdater;}
-      } else{throw;}
-
-      t.dateChanged = now;
-      t.changedBy = msg.sender;
-      t.changeReason = _reason;
-      }
 
 //this is the function sets the listing price
-    if (_action == 4){
+    if (_action == modActions.reprice){
       price = _reprice;
     }
 
 //this is the function labels the Manager contract , may not be needed unless you are hosting more than one reg contract and need to identify them quickly
-    if (_action == 5){
+    if (_action == modActions.rename){
       nameTag = _newName;
     }
 }
 
 
+////////////
+//OUTPUTS///////////////////////////////////////////////////////////////////////
+//////////
 
-//Outputs
-
-function Count() constant returns (uint){
+function Count() constant returns (uint64){
 return aCount;
 }
 
-function aList(uint _index) constant returns (address){
-  return tokens[_index].tAddr;
+function modList(uint8 _index) constant returns (address){
+  return adminList[_index].adminAddr;
   }
 
 function returnCheck() constant returns (uint){
@@ -252,23 +216,61 @@ function ownerCheck() constant returns(address){
   return owner;
 }
 
-function getArray(uint _index) constant returns (address,address,string,string,uint,string,string,string,uint,address,string)  // NOTE 3 see below
+function getArray(uint _index) constant returns (address,address,string,string,uint,string,string,string,string)  // NOTE 3 see below
     {
-    	return (tokens[_index].tAddr,tokens[_index].tSale,tokens[_index].tName,tokens[_index].tSymbol, tokens[_index].tDecimal, tokens[_index].tType,tokens[_index].tIcon,tokens[_index].memo,tokens[_index].dateChanged,tokens[_index].changedBy,tokens[_index].changeReason);
+        token t = tokens[_index];
+    	return (t.tAddr,t.tSale,t.tName,t.tSymbol, t.tDecimal, t.tType,t.tIcon, t.tURL,t.tBlerb);
     }
 
-//modifiers
+function getQuick(uint _index) constant returns (address, string, string, string)
+    {
+        token t = tokens[_index];
+    	return (t.tAddr, t.tName, t.tSymbol, t.tIcon);
+    }
+
+/////////////
+//MODIFIERS////////////////////////////////////////////////////////////////////
+////////////
+
 modifier onlyAdmin{
       uint adminCheck = 0;
       for(uint i; i < aCount; i ++){
         if (msg.sender == adminList[i].adminAddr){adminCheck = 1;}
-        if (adminCheck != 1){_;}
+        if (adminCheck != 1){throw;  _;}
         }
     }
 
+////////////
+//SAFETY ////////////////////////////////////////////////////////////////////
+//////////
 //safety switches consider removing for production
 //clean up after contract is no longer needed
 
 function kill() public onlyOwner {selfdestruct(owner);}
 
 }
+
+/////////////////////////////////////////////////////////////////////////////
+// 88888b   d888b  88b  88 8 888888         _.-----._
+// 88   88 88   88 888b 88 P   88   \)|)_ ,'         `. _))|)
+// 88   88 88   88 88`8b88     88    );-'/             \`-:(
+// 88   88 88   88 88 `888     88   //  :               :  \\   .
+// 88888P   T888P  88  `88     88  //_,'; ,.         ,. |___\\
+//    .           __,...,--.       `---':(  `-.___.-'  );----'
+//              ,' :    |   \            \`. `'-'-'' ,'/
+//             :   |    ;   ::            `.`-.,-.-.','
+//     |    ,-.|   :  _//`. ;|              ``---\` :
+//   -(o)- (   \ .- \  `._// |    *               `.'       *
+//     |   |\   :   : _ |.-  :              .        .
+//     .   :\: -:  _|\_||  .-(    _..----..
+//         :_:  _\\_`.--'  _  \,-'      __ \
+//         .` \\_,)--'/ .'    (      ..'--`'          ,-.
+//         |.- `-'.-               ,'                (///)
+//         :  ,'     .            ;             *     `-'
+//   *     :         :           /
+//          \      ,'         _,'   88888b   888    88b  88 88  d888b  88
+//           `._       `-  ,-'      88   88 88 88   888b 88 88 88   `  88
+//            : `--..     :        *88888P 88   88  88`8b88 88 88      88
+//        .   |           |	        88    d8888888b 88 `888 88 88   ,  `"	.
+//            |           | 	      88    88     8b 88  `88 88  T888P  88
+/////////////////////////////////////////////////////////////////////////

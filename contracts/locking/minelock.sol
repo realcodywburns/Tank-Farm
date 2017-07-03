@@ -12,7 +12,10 @@ pragma solidity ^0.4.11;
 
 contract minelock {
 
-// global vars
+////////////////
+//Global VARS//////////////////////////////////////////////////////////////////////////
+//////////////
+
     uint public releaseTime = 1496423100;       // stores the unix encoded timestamp of release
     uint public termOfTrade = 100 ether;        // final contract goal
     bool public metToT;                         // did contract close
@@ -21,19 +24,30 @@ contract minelock {
     address public sponsor = msg.sender;        // person who is putting reputation on the line
     string public pool;                         // pool url the contract can be viewed at
     string public version = "v0.1.1";           // version
-//mapping
+///////////
+//MAPPING/////////////////////////////////////////////////////////////////////////////
+///////////
 
-//events
+
+///////////
+//EVENTS////////////////////////////////////////////////////////////////////////////
+//////////
     event Funded(address indexed locker, uint indexed amount);      // announce when new funds arrive
     event Released(address indexed locker, uint indexed amount);    // announce when minelock pays out
     event Priced(uint latestPrice);                                 // announce when the price changes
     event Pooled(string newPoolLink);                               // announce when the sponsor changes pools
+/////////////
+//MODIFIERS////////////////////////////////////////////////////////////////////
+////////////
 
-//modifiers
     modifier onlyOwner {if (msg.sender != owner) throw; _; }        // things only the current owner can do
     modifier onlySponsor {if (msg.sender != sponsor) throw; _; }    // things only the sponsor can do
 
-//functions
+//////////////
+//Operations////////////////////////////////////////////////////////////////////////
+//////////////
+
+/* public */
 
     //payable
     function() payable {                                            // allow for funding
@@ -58,7 +72,7 @@ contract minelock {
         owner = msg.sender;
     }
 
-    //only Owner
+/* only owner */
     function withdraw() onlyOwner{                                  // owner can withdraw after maturity
         require (block.timestamp > releaseTime);
         if(this.balance >= termOfTrade){metToT = true;}
@@ -72,10 +86,43 @@ contract minelock {
         Priced(listPrice);
     }
 
-    //only Sponsor
-                                                    //allow sponsor to update the pool website
+/* admin/group functions */
+//allow sponsor to update the pool website
     function newPool(string _newPool) onlySponsor{
         pool = _newPool;
         Pooled(pool);
     }
+////////////
+//OUTPUTS///////////////////////////////////////////////////////////////////////
+//////////
+
+////////////
+//SAFETY ////////////////////////////////////////////////////////////////////
+//////////
+//safety switches consider removing for production
+//clean up after contract is no longer needed
   }
+  /////////////////////////////////////////////////////////////////////////////
+  // 88888b   d888b  88b  88 8 888888         _.-----._
+  // 88   88 88   88 888b 88 P   88   \)|)_ ,'         `. _))|)
+  // 88   88 88   88 88`8b88     88    );-'/             \`-:(
+  // 88   88 88   88 88 `888     88   //  :               :  \\   .
+  // 88888P   T888P  88  `88     88  //_,'; ,.         ,. |___\\
+  //    .           __,...,--.       `---':(  `-.___.-'  );----'
+  //              ,' :    |   \            \`. `'-'-'' ,'/
+  //             :   |    ;   ::            `.`-.,-.-.','
+  //     |    ,-.|   :  _//`. ;|              ``---\` :
+  //   -(o)- (   \ .- \  `._// |    *               `.'       *
+  //     |   |\   :   : _ |.-  :              .        .
+  //     .   :\: -:  _|\_||  .-(    _..----..
+  //         :_:  _\\_`.--'  _  \,-'      __ \
+  //         .` \\_,)--'/ .'    (      ..'--`'          ,-.
+  //         |.- `-'.-               ,'                (///)
+  //         :  ,'     .            ;             *     `-'
+  //   *     :         :           /
+  //          \      ,'         _,'   88888b   888    88b  88 88  d888b  88
+  //           `._       `-  ,-'      88   88 88 88   888b 88 88 88   `  88
+  //            : `--..     :        *88888P 88   88  88`8b88 88 88      88
+  //        .   |           |	        88    d8888888b 88 `888 88 88   ,  `"	.
+  //            |           | 	      88    88     8b 88  `88 88  T888P  88
+  /////////////////////////////////////////////////////////////////////////

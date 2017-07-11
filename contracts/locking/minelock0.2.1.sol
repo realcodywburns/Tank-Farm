@@ -16,14 +16,15 @@ contract minelock {
 //Global VARS//////////////////////////////////////////////////////////////////////////
 //////////////
 
-    uint public releaseTime = 1496423100;       // stores the unix encoded timestamp of release
-    uint public termOfTrade = 100 ether;        // final contract goal
+    uint public deliveryDate;                    // stores the unix encoded timestamp of release
+    uint public termOfTrade;                     // final contract goal
     bool public metToT;                         // did contract close
     uint public listPrice;                      // allow for dynamic pricing
     address public owner = msg.sender;          // person who is currently able to withdraw
     address public sponsor = msg.sender;        // person who is putting reputation on the line
     string public pool;                         // pool url the contract can be viewed at
-    string public version = "v0.1.1";           // version
+    string public version = "v0.2.1";           // version
+
 ///////////
 //MAPPING/////////////////////////////////////////////////////////////////////////////
 ///////////
@@ -36,6 +37,7 @@ contract minelock {
     event Released(address indexed locker, uint indexed amount);    // announce when minelock pays out
     event Priced(uint latestPrice);                                 // announce when the price changes
     event Pooled(string newPoolLink);                               // announce when the sponsor changes pools
+
 /////////////
 //MODIFIERS////////////////////////////////////////////////////////////////////
 ////////////
@@ -47,17 +49,22 @@ contract minelock {
 //Operations////////////////////////////////////////////////////////////////////////
 //////////////
 
+/* init */
+  function minelock(uint _deliveryDate, uint _termsOfTrade, uint _listPrice, string _pool){
+   deliveryDate = _deliveryDate;
+   termOfTrade = _termsOfTrade;
+   listPrice = _listPrice;
+   pool = _pool;
+  }
+
+
 /* public */
 
     //payable
     function() payable {                                            // allow for funding
     Funded(msg.sender, msg.value);
-    if(this.balance + msg.value > termOfTrade){     // stop accepting funds after contract is at the term of trade
-       uint unmet = termOfTrade - this.balance;     // find out the unmet funding goal
-       uint forward = msg.value - unmet;            // subtrat the unmet from the incoming value
-       sponsor.transfer(forward);                   // forward the excess to the sponsor so no contract will ever exceed the tot
-       forward = 0;                                 // safety reset of local vars
-       unmet = 0;
+    if(this.balance + msg.value > termOfTrade){       // stop accepting funds after contract is at the term of trade
+       sponsor.transfer(msg.value);
        }
     }
 
@@ -73,25 +80,26 @@ contract minelock {
     }
 
 /* only owner */
-    function withdraw() onlyOwner{                                  // owner can withdraw after maturity
-        if(msg.value < listPrice){throw;}
-        if(this.balance >= termOfTrade){metToT = true;}
+    function withdraw() onlyOwner{                                  // owner (person who paid the list price last) can withdraw after maturity
+        if(block.timestamp < deliveryDate){throw;}
+        if(this.balance>= termOfTrade){metToT = true;}
         msg.sender.transfer(this.balance);
-
         }
 
         //allows for dynamic pricing
-    function setPrice(uint _newPrice) onlyOwner{                    // owner can change list price
+    function setPrice(uint _newPrice) onlyOwner{                    // owner can change list price to find a buyer
         listPrice = _newPrice;
         Priced(listPrice);
     }
 
 /* admin/group functions */
-//allow sponsor to update the pool website
+
+//allow sponsor to update the pool website. This is a string that represents the url to view the current hashrate of the mining contract. A "blind" forward is possible if this is blank
     function newPool(string _newPool) onlySponsor{
         pool = _newPool;
         Pooled(pool);
     }
+
 ////////////
 //OUTPUTS///////////////////////////////////////////////////////////////////////
 //////////
@@ -99,8 +107,7 @@ contract minelock {
 ////////////
 //SAFETY ////////////////////////////////////////////////////////////////////
 //////////
-//safety switches consider removing for production
-//clean up after contract is no longer needed
+
   }
   /////////////////////////////////////////////////////////////////////////////
   // 88888b   d888b  88b  88 8 888888         _.-----._
@@ -123,6 +130,6 @@ contract minelock {
   //          \      ,'         _,'   88888b   888    88b  88 88  d888b  88
   //           `._       `-  ,-'      88   88 88 88   888b 88 88 88   `  88
   //            : `--..     :        *88888P 88   88  88`8b88 88 88      88
-  //        .   |           |	        88    d8888888b 88 `888 88 88   ,  `"	.
+  //        .   |           |	        88    d8888888b 88 `888 88 88   ,  `"
   //            |           | 	      88    88     8b 88  `88 88  T888P  88
   /////////////////////////////////////////////////////////////////////////

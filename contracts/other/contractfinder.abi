@@ -1,0 +1,1 @@
+[{"constant":true,"inputs":[{"name":"_master","type":"address"},{"name":"_nonce","type":"uint8"}],"name":"addressForNonce","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"}]

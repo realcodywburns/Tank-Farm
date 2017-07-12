@@ -59,11 +59,7 @@ function addressForNonce(address _master, uint8 _nonce) constant returns (addres
     if (_nonce >= 128 && _nonce <= 256){
       cAddress =address(sha3(0xd7, 0x94, address(_master), 0x81, _nonce));
     }
-
-    // 256to65535
-    if (_nonce >= 256){
-       cAddress =address(sha3(0xd8, 0x94, address(_master), 0x82, _nonce));
-    }
+   
     return cAddress;
   }
 

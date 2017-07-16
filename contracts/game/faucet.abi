@@ -1,0 +1,164 @@
+[
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "getETC",
+    "outputs": [],
+    "payable": false,
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "nextPayout",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "runningCount",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "killshot",
+    "outputs": [],
+    "payable": false,
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_dropValue",
+        "type": "uint256"
+      },
+      {
+        "name": "_dripRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "dripSet",
+    "outputs": [],
+    "payable": false,
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "dripRate",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "dropValue",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "lastDrip",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "name": "_dropValue",
+        "type": "uint256"
+      },
+      {
+        "name": "_dripRate",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "type": "constructor"
+  },
+  {
+    "payable": true,
+    "type": "fallback"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "rewarded",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "drip",
+        "type": "uint256"
+      }
+    ],
+    "name": "Payouts",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "dripset",
+        "type": "uint256"
+      }
+    ],
+    "name": "DripSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "coolperson",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "paid",
+        "type": "uint256"
+      }
+    ],
+    "name": "Donation",
+    "type": "event"
+  }
+]

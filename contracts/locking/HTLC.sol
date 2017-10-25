@@ -50,7 +50,7 @@ contract HTLC {
 ////////////
 
     
-    modifier onlyIssuer {assert(msg.sender != issuer); _; }
+    modifier onlyIssuer {assert(msg.sender == issuer); _; }
 
 //////////////
 //Operations////////////////////////////////////////////////////////////////////////

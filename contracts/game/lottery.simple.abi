@@ -1,0 +1,11 @@
+[{"constant":true,"inputs":[],"name":"ticketsIssued","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},
+{"constant":true,"inputs":[],"name":"lotteryDuration","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},
+{"constant":true,"inputs":[],"name":"lotteryEnded","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},
+{"constant":true,"inputs":[],"name":"contractBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},
+{"constant":true,"inputs":[],"name":"charity","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},
+{"constant":true,"inputs":[],"name":"lotteryStart","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},
+{"constant":true,"inputs":[],"name":"charityAmount","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},
+{"constant":true,"inputs":[],"name":"winner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},
+{"constant":true,"inputs":[{"name":"_account","type":"address"}],"name":"getTicketBalance","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},
+{"constant":false,"inputs":[],"name":"generateWinners","outputs":[{"name":"winningTicket","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},
+]

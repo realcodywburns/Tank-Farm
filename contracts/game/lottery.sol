@@ -155,9 +155,12 @@ contract Lottery {
     
 /* only owner */
 
-    function setCharity(address _charity) onlyOwner public {
+    function setCharity(address _charity, uint8 _charityAmt) onlyOwner public {
      charity = _charity;
+     charityAmount = _charityAmt;
     }
+    
+    
     function setDuration(uint8 _newTime) onlyOwner public {
         nextLotteryDuration = _newTime;
     }

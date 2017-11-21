@@ -84,7 +84,7 @@ contract Lottery {
         _;
     }
     modifier onlyOwner() {
-        require(msg.sender != owner);
+        require(msg.sender == owner);
         _;
     }
 //////////////
@@ -95,7 +95,9 @@ contract Lottery {
     function init() public {
         require (ownerSet == false);
         ownerSet = true;
+        nextLotteryDuration = 1;
         owner = msg.sender;
+        resetLottery();
     }
     
     function () payable public {
@@ -146,7 +148,6 @@ contract Lottery {
         lotteryEnded = false;
         lotteryStart = now;
         ticketsIssued = 0;
-        hodlers;
         lotteryDuration = nextLotteryDuration;
         ResetLottery();
         return true;
